@@ -20,7 +20,14 @@ export class ArticleService {
   }
 
   async getArticleById(id: string): Promise<Article> {
-    return await this.articleModel.findOne({ _id: id }).populate("author");
+    return await this.articleModel.findOne({ _id: id }).populate([
+      { path: "author", model: "User" },
+      {
+        path: "comments",
+        model: "Comment",
+        populate: { path: "author", model: "User" }
+      }
+    ]);
   }
 
   async getAllArticles(page: number, limit: number): Promise<Article[]> {

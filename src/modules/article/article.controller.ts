@@ -1,9 +1,6 @@
 import { ArticleService } from "./article.service";
 import { ILogger, Logger } from "../../libs/logging/logger";
-import {
-  CreateArticleDto,
-  LikeDislikeArticleDto as LikeDislikeArticleDto
-} from "./dto/article.dto";
+import { CreateArticleDto, LikeDislikeArticleDto } from "./dto/article.dto";
 
 import {
   Controller,
@@ -40,14 +37,11 @@ export class ArticleController {
     summary: "Create a new Article"
   })
   async createArticle(@Body() createArticleDto: CreateArticleDto) {
-    try {
-      this.logger.info(
-        `[POST - /article] => ${JSON.stringify(createArticleDto)}`
-      );
-      return await this.articleService.createArticle(createArticleDto);
-    } catch (err: any) {
-      throw new HttpException("Name must be unique", 400);
-    }
+    this.logger.info(
+      `[POST - /article] => ${JSON.stringify(createArticleDto)}`
+    );
+
+    return await this.articleService.createArticle(createArticleDto);
   }
 
   @Get(":id")

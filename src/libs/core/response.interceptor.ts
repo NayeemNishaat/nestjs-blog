@@ -20,8 +20,11 @@ export class ResponseInterceptor<T>
     return next.handle().pipe(
       map((data) => {
         const { statusCode } = context.switchToHttp().getResponse();
-        const { message } = data;
-        delete data.message;
+        let message = "";
+        if (data) {
+          message = data.message;
+          delete data.message;
+        }
 
         return {
           error: ResponseConstants.Common[statusCode]?.error || false,
@@ -32,7 +35,13 @@ export class ResponseInterceptor<T>
             message ||
             ResponseConstants.Common[statusCode]?.message ||
             "Success",
-          type: Array.isArray(data) ? "array" : typeof data,
+          type: Array.isArray(data)
+            ? "array"
+            : data instanceof Object
+            ? "object"
+            : data === null
+            ? "null"
+            : typeof data,
           data: data
         };
       })
