@@ -1,6 +1,10 @@
+import { CacheInterceptor } from "@nestjs/cache-manager";
 import { ArticleService } from "./article.service";
 import { ILogger, Logger } from "../../libs/logging/logger";
 import { CreateArticleDto, LikeDislikeArticleDto } from "./dto/article.dto";
+// import { CACHE_MANAGER } from "@nestjs/cache-manager";
+// import { Cache } from "cache-manager";
+// import { Inject } from "@nestjs/common";
 
 import {
   Controller,
@@ -44,6 +48,7 @@ export class ArticleController {
     return await this.articleService.createArticle(createArticleDto);
   }
 
+  @UseInterceptors(CacheInterceptor) // Note: Caching response
   @Get(":id")
   @ApiOkResponse({
     description: "Get an Article by id",
@@ -55,11 +60,7 @@ export class ArticleController {
   async getArticleById(@Param("id") id: string) {
     this.logger.info(`[GET - /user/:id] => ${JSON.stringify({ id })}`);
 
-    try {
-      return await this.articleService.getArticleById(id);
-    } catch (err: any) {
-      throw new HttpException("Article not found", 404);
-    }
+    return await this.articleService.getArticleById(id);
   }
 
   @Get()
