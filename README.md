@@ -1,7 +1,3 @@
-# API Gateway Microservice
-
-This is the microservice that acts as a single entry point for all requests to the backend. It is responsible for routing requests to the appropriate microservice and returning the response to the client.
-
 # API Documentation
 
 http://localhost:3000/api
