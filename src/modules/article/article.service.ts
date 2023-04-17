@@ -4,6 +4,7 @@ import { InjectModel } from "@nestjs/mongoose";
 import { Article } from "src/models/article.entity";
 import { User } from "src/models/user.entity";
 import { CreateArticleDto, LikeDislikeArticleDto } from "./dto/article.dto";
+import { ArticleSearchService } from "./article-search.service";
 
 @Injectable()
 export class ArticleService {
@@ -11,12 +12,29 @@ export class ArticleService {
     @InjectModel(Article.name)
     private articleModel: Model<Article>,
     @InjectModel(User.name)
-    private userModel: Model<User>
+    private userModel: Model<User>,
+    private articleSearchService: ArticleSearchService
   ) {}
 
   async createArticle(createArticleDto: CreateArticleDto): Promise<Article> {
     const createdArticle = new this.articleModel(createArticleDto);
-    return await createdArticle.save();
+    await createdArticle.save();
+    createArticleDto["id"] = createdArticle._id;
+    this.articleSearchService.indexArticle(createArticleDto);
+
+    return createdArticle;
+  }
+
+  async searchArticles(text: string) {
+    const results = await this.articleSearchService.search(text);
+    const ids = results.map((result) => (result._source as any).id);
+    console.log(ids);
+    if (!ids.length) {
+      return [];
+    }
+    return this.articleModel.find({
+      _id: { $in: ids }
+    });
   }
 
   async getArticleById(id: string): Promise<Article> {

@@ -11,8 +11,8 @@ import { CommentModule } from "./modules/comment/comment.module";
 @Module({
   imports: [
     ThrottlerModule.forRoot({
-      ttl: 60,
-      limit: 10
+      ttl: +process.env.THROTTLE_TTL,
+      limit: +process.env.THROTTLE_LIMIT
     }),
     ConfigModule.forRoot({ isGlobal: true }),
     MongooseModule.forRootAsync({

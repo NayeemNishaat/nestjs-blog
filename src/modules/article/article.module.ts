@@ -5,7 +5,9 @@ import { ElasticsearchModule } from "@nestjs/elasticsearch";
 import { Article, ArticleSchema } from "src/models/article.entity";
 import { User, UserSchema } from "src/models/user.entity";
 import { ArticleService } from "./article.service";
+import { ArticleSearchService } from "./article-search.service";
 import { ArticleController } from "./article.controller";
+import { SearchModule } from "../search/search.module";
 
 @Module({
   imports: [
@@ -13,15 +15,16 @@ import { ArticleController } from "./article.controller";
       ttl: +process.env.TTL, // Remark: Caching expires after 30 seconds.
       max: +process.env.MAX_ITEMS
     }),
-    ElasticsearchModule.registerAsync({
-      useFactory: () => ({
-        node: process.env.ELASTIC_URI
-      })
-    }),
+    SearchModule,
+    // ElasticsearchModule.registerAsync({
+    //   useFactory: () => ({
+    //     node: process.env.ELASTIC_URI
+    //   })
+    // }),
     MongooseModule.forFeature([{ name: Article.name, schema: ArticleSchema }]),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }])
   ],
   controllers: [ArticleController],
-  providers: [ArticleService]
+  providers: [ArticleService, ArticleSearchService]
 })
 export class ArticleModule {}

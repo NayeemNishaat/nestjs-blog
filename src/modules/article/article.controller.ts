@@ -2,7 +2,6 @@ import { CacheInterceptor } from "@nestjs/cache-manager";
 import { ArticleService } from "./article.service";
 import { ILogger, Logger } from "../../libs/logging/logger";
 import { CreateArticleDto, LikeDislikeArticleDto } from "./dto/article.dto";
-
 import {
   Controller,
   Post,
@@ -12,14 +11,16 @@ import {
   Param,
   Query,
   UseInterceptors,
-  HttpException
+  HttpException,
+  DefaultValuePipe
 } from "@nestjs/common";
 import { ResponseInterceptor } from "src/libs/core/response.interceptor";
 import {
   ApiOkResponse,
   ApiTags,
   ApiOperation,
-  ApiCreatedResponse
+  ApiCreatedResponse,
+  ApiQuery
 } from "@nestjs/swagger";
 
 @ApiTags("Article API")
@@ -69,13 +70,19 @@ export class ArticleController {
   @ApiOperation({
     summary: "Get all Articles"
   })
+  @ApiQuery({ name: "page", required: false, type: Number })
+  @ApiQuery({ name: "limit", required: false, type: Number })
+  @ApiQuery({ name: "search", required: false, type: String })
   async getAllArticles(
-    @Query("page") page: number = 1,
-    @Query("limit") limit: number = 10
+    @Query("page", new DefaultValuePipe(1)) page?: number,
+    @Query("limit", new DefaultValuePipe(10)) limit?: number,
+    @Query("search") search?: string
   ) {
     this.logger.info(`[GET - /user] => ${JSON.stringify(null)}`);
 
     if (page < 1) throw new HttpException("Page must be greater than 0", 400);
+
+    if (search) return this.articleService.searchArticles(search);
 
     return await this.articleService.getAllArticles(page, limit);
   }

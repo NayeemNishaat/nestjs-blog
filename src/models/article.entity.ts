@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { HydratedDocument, Schema as MongoSchema } from "mongoose";
-import { mongoosastic } from "mongoosastic-ts";
 import { Comment } from "./comment.entity";
 import { User } from "./user.entity";
 
@@ -8,6 +7,8 @@ export type ArticleDocument = HydratedDocument<Article>;
 
 @Schema({ timestamps: true })
 export class Article {
+  // _id: Types.ObjectId;
+
   @Prop({ type: String, required: true, trim: true })
   name: string;
 
@@ -40,6 +41,3 @@ export class Article {
 }
 
 export const ArticleSchema = SchemaFactory.createForClass(Article);
-
-let ms: any = mongoosastic;
-ArticleSchema.plugin(ms, { index: "articles", type: "article" });
