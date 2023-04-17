@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { HydratedDocument, Schema as MongoSchema } from "mongoose";
+import { mongoosastic } from "mongoosastic-ts";
 import { Comment } from "./comment.entity";
 import { User } from "./user.entity";
 
@@ -39,3 +40,6 @@ export class Article {
 }
 
 export const ArticleSchema = SchemaFactory.createForClass(Article);
+
+let ms: any = mongoosastic;
+ArticleSchema.plugin(ms, { index: "articles", type: "article" });

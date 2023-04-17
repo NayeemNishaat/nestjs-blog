@@ -10,7 +10,11 @@ import { CommentModule } from "./modules/comment/comment.module";
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    MongooseModule.forRoot(process.env.URI),
+    MongooseModule.forRootAsync({
+      useFactory: () => ({
+        uri: process.env.MONGO_URI
+      })
+    }),
     UserModule,
     ArticleModule,
     CommentModule

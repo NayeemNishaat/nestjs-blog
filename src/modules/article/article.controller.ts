@@ -2,9 +2,6 @@ import { CacheInterceptor } from "@nestjs/cache-manager";
 import { ArticleService } from "./article.service";
 import { ILogger, Logger } from "../../libs/logging/logger";
 import { CreateArticleDto, LikeDislikeArticleDto } from "./dto/article.dto";
-// import { CACHE_MANAGER } from "@nestjs/cache-manager";
-// import { Cache } from "cache-manager";
-// import { Inject } from "@nestjs/common";
 
 import {
   Controller,
