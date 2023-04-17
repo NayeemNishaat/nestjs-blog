@@ -35,15 +35,19 @@ export class AllExceptionFilter implements ExceptionFilter {
           ? errResponse
           : errResponse instanceof Error
           ? errResponse.message
-          : undefined;
+          : "";
+
       errResponse = ResponseConstants.Common[status];
-      message && (errResponse.message = message);
+      message &&
+        errResponse instanceof Object &&
+        (errResponse.message = message);
 
       if (errResponse === undefined || errResponse === null) {
         this.logger.error(
           `Could not find common response constant for status ${status}. Defaulting to 500.`
         );
         errResponse = ResponseConstants.Common[500];
+        message && (errResponse.message = message);
       }
     }
 

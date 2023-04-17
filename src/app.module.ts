@@ -3,12 +3,17 @@ import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { ConfigModule } from "@nestjs/config";
 import { MongooseModule } from "@nestjs/mongoose";
+import { ThrottlerModule } from "@nestjs/throttler";
 import { UserModule } from "./modules/user/user.module";
 import { ArticleModule } from "./modules/article/article.module";
 import { CommentModule } from "./modules/comment/comment.module";
 
 @Module({
   imports: [
+    ThrottlerModule.forRoot({
+      ttl: 60,
+      limit: 10
+    }),
     ConfigModule.forRoot({ isGlobal: true }),
     MongooseModule.forRootAsync({
       useFactory: () => ({

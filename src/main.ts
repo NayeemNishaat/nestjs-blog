@@ -2,11 +2,13 @@ import { HttpAdapterHost, NestFactory } from "@nestjs/core";
 import { ValidationPipe } from "@nestjs/common";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
+import helmet from "helmet";
 import { AppModule } from "./app.module";
 import { AllExceptionFilter } from "./libs/core/all-exception.filter";
 
 async function server() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  app.use(helmet());
   app.enableCors();
   app.setGlobalPrefix("api/v1");
 
