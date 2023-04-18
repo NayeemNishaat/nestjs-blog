@@ -24,10 +24,11 @@ export class ArticleService {
 
   async createArticle(createArticleDto: CreateArticleDto): Promise<Article> {
     const createdArticle = new this.articleModel(createArticleDto);
-    // await createdArticle.save();
+    await createdArticle.save();
     createArticleDto["id"] = createdArticle._id;
 
-    this.client.send(INDEX_ARTICLE, createArticleDto);
+    const res = this.client.send(INDEX_ARTICLE, createArticleDto);
+    res.subscribe();
 
     return createdArticle;
   }

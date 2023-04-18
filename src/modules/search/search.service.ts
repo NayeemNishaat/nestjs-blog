@@ -66,8 +66,8 @@ export class SearchService {
       index: this.idx,
       body: {
         query: {
-          multi_match: {
-            query: text,
+          query_string: {
+            query: `*${text}*`,
             fields: ["tags", "categories"]
           }
         }
