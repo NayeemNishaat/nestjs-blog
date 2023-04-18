@@ -2,6 +2,10 @@ import { Injectable } from "@nestjs/common";
 import { ElasticsearchService } from "@nestjs/elasticsearch";
 import { CreateArticleDto } from "./dto/article.dto";
 
+interface iCreateArticleDto extends CreateArticleDto {
+  id: string;
+}
+
 @Injectable()
 export class ArticleSearchService {
   index = "articles";
@@ -12,6 +16,39 @@ export class ArticleSearchService {
     return this.elasticsearchService.index({
       index: this.index,
       body: article
+    });
+  }
+
+  async remove(articleId: number) {
+    this.elasticsearchService.deleteByQuery({
+      index: this.index,
+      body: {
+        query: {
+          match: {
+            id: articleId
+          }
+        }
+      }
+    });
+  }
+
+  async update(article: iCreateArticleDto) {
+    const script = Object.entries(article).reduce((result, [key, value]) => {
+      return `${result} ctx._source.${key}='${value}';`;
+    }, "");
+
+    return this.elasticsearchService.updateByQuery({
+      index: this.index,
+      body: {
+        query: {
+          match: {
+            id: article.id
+          }
+        },
+        script: {
+          source: script
+        }
+      }
     });
   }
 
@@ -31,11 +68,3 @@ export class ArticleSearchService {
     return hits.hits;
   }
 }
-// <{
-//     hits: {
-//       total: number;
-//       hits: Array<{
-//         _source: Article;
-//       }>;
-//     };
-//   }>

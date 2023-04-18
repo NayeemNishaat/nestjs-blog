@@ -28,7 +28,7 @@ export class ArticleService {
   async searchArticles(text: string) {
     const results = await this.articleSearchService.search(text);
     const ids = results.map((result) => (result._source as any).id);
-    console.log(ids);
+
     if (!ids.length) {
       return [];
     }
