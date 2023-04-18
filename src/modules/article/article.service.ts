@@ -7,7 +7,11 @@ import { CreateArticleDto, LikeDislikeArticleDto } from "./dto/article.dto";
 import { SEARCH_CLIENT } from "src/constants/module.constant";
 import { ClientProxy } from "@nestjs/microservices";
 import { INDEX_ARTICLE, SEARCH_ARTICLE } from "src/constants/broker.constant";
+import { firstValueFrom } from "rxjs";
 
+interface iArticle extends Article {
+  id: string;
+}
 @Injectable()
 export class ArticleService {
   constructor(
@@ -20,23 +24,26 @@ export class ArticleService {
 
   async createArticle(createArticleDto: CreateArticleDto): Promise<Article> {
     const createdArticle = new this.articleModel(createArticleDto);
-    await createdArticle.save();
+    // await createdArticle.save();
     createArticleDto["id"] = createdArticle._id;
 
     this.client.send(INDEX_ARTICLE, createArticleDto);
+
     return createdArticle;
   }
 
   async searchArticles(text: string) {
-    // const results = await this.articleSearchService.search(text);
-    // const results = await this.client.send(SEARCH_ARTICLE, text);
-    // const ids = results.map((result) => (result._source as any).id);
-    // if (!ids.length) {
-    //   return [];
-    // }
-    // return this.articleModel.find({
-    //   _id: { $in: ids }
-    // });
+    const results = await firstValueFrom<{ _source: iArticle }[]>(
+      this.client.send(SEARCH_ARTICLE, text)
+    );
+
+    const ids = results.map((result) => result._source.id);
+    if (!ids.length) {
+      return [];
+    }
+    return this.articleModel.find({
+      _id: { $in: ids }
+    });
   }
 
   async getArticleById(id: string): Promise<Article> {

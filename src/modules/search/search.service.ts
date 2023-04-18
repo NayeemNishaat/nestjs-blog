@@ -1,14 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { ElasticsearchService } from "@nestjs/elasticsearch";
 import { CreateArticleDto } from "../article/dto/article.dto";
-import {
-  Ctx,
-  MessagePattern,
-  Payload,
-  RmqContext,
-  Transport
-} from "@nestjs/microservices";
-import { INDEX_ARTICLE } from "src/constants/broker.constant";
+import { RmqContext } from "@nestjs/microservices";
 
 interface iCreateArticleDto extends CreateArticleDto {
   id: string;
@@ -16,29 +9,25 @@ interface iCreateArticleDto extends CreateArticleDto {
 
 @Injectable()
 export class SearchService {
-  index = "articles";
+  idx = "articles";
 
   constructor(private readonly elasticsearchService: ElasticsearchService) {}
 
-  @MessagePattern(INDEX_ARTICLE, Transport.RMQ)
-  async indexArticle(
-    @Payload() article: CreateArticleDto,
-    @Ctx() context: RmqContext
-  ) {
-    console.log(67);
+  async index(article: CreateArticleDto, context: RmqContext) {
     const channel = context.getChannelRef();
-    // const originalMsg = context.getMessage();
-    const result = this.elasticsearchService.index({
-      index: this.index,
+    const originalMsg = context.getMessage();
+
+    this.elasticsearchService.index({
+      index: this.idx,
       body: article
     });
 
-    channel.ack(result);
+    channel.ack(originalMsg);
   }
 
   async remove(articleId: number) {
     this.elasticsearchService.deleteByQuery({
-      index: this.index,
+      index: this.idx,
       body: {
         query: {
           match: {
@@ -55,7 +44,7 @@ export class SearchService {
     }, "");
 
     return this.elasticsearchService.updateByQuery({
-      index: this.index,
+      index: this.idx,
       body: {
         query: {
           match: {
@@ -69,9 +58,12 @@ export class SearchService {
     });
   }
 
-  async search(text: string) {
+  async search(text: string, context: RmqContext) {
+    const channel = context.getChannelRef();
+    const originalMsg = context.getMessage();
+
     const { hits } = await this.elasticsearchService.search({
-      index: this.index,
+      index: this.idx,
       body: {
         query: {
           multi_match: {
@@ -82,6 +74,7 @@ export class SearchService {
       }
     });
 
+    channel.ack(originalMsg);
     return hits.hits;
   }
 }

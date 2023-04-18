@@ -7,25 +7,18 @@ import {
   RmqContext,
   Transport
 } from "@nestjs/microservices";
-import { INDEX_ARTICLE } from "src/constants/broker.constant";
-import { Controller, UseInterceptors } from "@nestjs/common";
-import { ResponseInterceptor } from "src/libs/core/response.interceptor";
+import { INDEX_ARTICLE, SEARCH_ARTICLE } from "src/constants/broker.constant";
+import { Controller } from "@nestjs/common";
 import { CreateArticleDto } from "../article/dto/article.dto";
-import { ElasticsearchService } from "@nestjs/elasticsearch";
+import { RpcException } from "@nestjs/microservices";
 
 @Controller("search")
-@UseInterceptors(ResponseInterceptor)
 export class SearchController {
   private readonly logger: ILogger = Logger.getLogger();
-  constructor(
-    private readonly searchService: SearchService,
-    private readonly elasticsearchService: ElasticsearchService
-  ) {}
-
-  index = "articles";
+  constructor(private readonly searchService: SearchService) {}
 
   @MessagePattern(INDEX_ARTICLE, Transport.RMQ)
-  async indexArticle(
+  async index(
     @Payload() article: CreateArticleDto,
     @Ctx() context: RmqContext
   ) {
@@ -33,13 +26,23 @@ export class SearchController {
       `[MessagePattern - ${INDEX_ARTICLE}] => ${JSON.stringify(article)}`
     );
 
-    const channel = context.getChannelRef();
-    const originalMsg = context.getMessage();
-    const result = this.elasticsearchService.index({
-      index: this.index,
-      body: article
-    });
+    try {
+      return await this.searchService.index(article, context);
+    } catch (error: any) {
+      throw new RpcException(error);
+    }
+  }
 
-    channel.ack(originalMsg);
+  @MessagePattern(SEARCH_ARTICLE, Transport.RMQ)
+  async search(@Payload() text: string, @Ctx() context: RmqContext) {
+    this.logger.info(
+      `[MessagePattern - ${SEARCH_ARTICLE}] => ${JSON.stringify(text)}`
+    );
+
+    try {
+      return await this.searchService.search(text, context);
+    } catch (error: any) {
+      throw new RpcException(error);
+    }
   }
 }
