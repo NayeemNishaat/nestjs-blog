@@ -1,13 +1,13 @@
 import { Module } from "@nestjs/common";
 import { MongooseModule } from "@nestjs/mongoose";
 import { CacheModule } from "@nestjs/cache-manager";
-import { ElasticsearchModule } from "@nestjs/elasticsearch";
+import { ClientsModule } from "@nestjs/microservices";
 import { Article, ArticleSchema } from "src/models/article.entity";
 import { User, UserSchema } from "src/models/user.entity";
 import { ArticleService } from "./article.service";
-import { ArticleSearchService } from "./article-search.service";
 import { ArticleController } from "./article.controller";
-import { SearchModule } from "../search/search.module";
+import { SEARCH_CLIENT } from "src/constants/module.constant";
+import { Transport } from "@nestjs/microservices";
 
 @Module({
   imports: [
@@ -15,16 +15,22 @@ import { SearchModule } from "../search/search.module";
       ttl: +process.env.TTL, // Remark: Caching expires after 30 seconds.
       max: +process.env.MAX_ITEMS
     }),
-    SearchModule,
-    // ElasticsearchModule.registerAsync({
-    //   useFactory: () => ({
-    //     node: process.env.ELASTIC_URI
-    //   })
-    // }),
+    ClientsModule.register([
+      {
+        name: SEARCH_CLIENT,
+        transport: Transport.RMQ,
+        options: {
+          urls: ["amqp://localhost:5672"],
+          queue: "laby",
+          noAck: false,
+          queueOptions: { durable: false }
+        }
+      }
+    ]),
     MongooseModule.forFeature([{ name: Article.name, schema: ArticleSchema }]),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }])
   ],
   controllers: [ArticleController],
-  providers: [ArticleService, ArticleSearchService]
+  providers: [ArticleService]
 })
 export class ArticleModule {}

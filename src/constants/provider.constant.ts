@@ -1,1 +1,0 @@
-export const FILEURL_SERVICE = "FILEURL_SERVICE";

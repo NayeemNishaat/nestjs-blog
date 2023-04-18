@@ -1,22 +1,39 @@
 import { Injectable } from "@nestjs/common";
 import { ElasticsearchService } from "@nestjs/elasticsearch";
-import { CreateArticleDto } from "./dto/article.dto";
+import { CreateArticleDto } from "../article/dto/article.dto";
+import {
+  Ctx,
+  MessagePattern,
+  Payload,
+  RmqContext,
+  Transport
+} from "@nestjs/microservices";
+import { INDEX_ARTICLE } from "src/constants/broker.constant";
 
 interface iCreateArticleDto extends CreateArticleDto {
   id: string;
 }
 
 @Injectable()
-export class ArticleSearchService {
+export class SearchService {
   index = "articles";
 
   constructor(private readonly elasticsearchService: ElasticsearchService) {}
 
-  async indexArticle(article: CreateArticleDto) {
-    return this.elasticsearchService.index({
+  @MessagePattern(INDEX_ARTICLE, Transport.RMQ)
+  async indexArticle(
+    @Payload() article: CreateArticleDto,
+    @Ctx() context: RmqContext
+  ) {
+    console.log(67);
+    const channel = context.getChannelRef();
+    // const originalMsg = context.getMessage();
+    const result = this.elasticsearchService.index({
       index: this.index,
       body: article
     });
+
+    channel.ack(result);
   }
 
   async remove(articleId: number) {

@@ -7,6 +7,7 @@ import { ThrottlerModule } from "@nestjs/throttler";
 import { UserModule } from "./modules/user/user.module";
 import { ArticleModule } from "./modules/article/article.module";
 import { CommentModule } from "./modules/comment/comment.module";
+import { SearchModule } from "./modules/search/search.module";
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { CommentModule } from "./modules/comment/comment.module";
         uri: process.env.MONGO_URI
       })
     }),
+    SearchModule,
     UserModule,
     ArticleModule,
     CommentModule

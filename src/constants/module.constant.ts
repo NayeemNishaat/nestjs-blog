@@ -1,0 +1,1 @@
+export const SEARCH_CLIENT = "SEARCH_CLIENT";

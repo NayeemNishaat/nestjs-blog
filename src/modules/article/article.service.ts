@@ -1,10 +1,12 @@
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import { Model, UpdateQuery } from "mongoose";
 import { InjectModel } from "@nestjs/mongoose";
 import { Article } from "src/models/article.entity";
 import { User } from "src/models/user.entity";
 import { CreateArticleDto, LikeDislikeArticleDto } from "./dto/article.dto";
-import { ArticleSearchService } from "./article-search.service";
+import { SEARCH_CLIENT } from "src/constants/module.constant";
+import { ClientProxy } from "@nestjs/microservices";
+import { INDEX_ARTICLE, SEARCH_ARTICLE } from "src/constants/broker.constant";
 
 @Injectable()
 export class ArticleService {
@@ -13,28 +15,28 @@ export class ArticleService {
     private articleModel: Model<Article>,
     @InjectModel(User.name)
     private userModel: Model<User>,
-    private articleSearchService: ArticleSearchService
+    @Inject(SEARCH_CLIENT) private client: ClientProxy
   ) {}
 
   async createArticle(createArticleDto: CreateArticleDto): Promise<Article> {
     const createdArticle = new this.articleModel(createArticleDto);
     await createdArticle.save();
     createArticleDto["id"] = createdArticle._id;
-    this.articleSearchService.indexArticle(createArticleDto);
 
+    this.client.send(INDEX_ARTICLE, createArticleDto);
     return createdArticle;
   }
 
   async searchArticles(text: string) {
-    const results = await this.articleSearchService.search(text);
-    const ids = results.map((result) => (result._source as any).id);
-
-    if (!ids.length) {
-      return [];
-    }
-    return this.articleModel.find({
-      _id: { $in: ids }
-    });
+    // const results = await this.articleSearchService.search(text);
+    // const results = await this.client.send(SEARCH_ARTICLE, text);
+    // const ids = results.map((result) => (result._source as any).id);
+    // if (!ids.length) {
+    //   return [];
+    // }
+    // return this.articleModel.find({
+    //   _id: { $in: ids }
+    // });
   }
 
   async getArticleById(id: string): Promise<Article> {

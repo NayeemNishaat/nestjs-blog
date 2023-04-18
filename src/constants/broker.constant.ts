@@ -1,0 +1,2 @@
+export const INDEX_ARTICLE = "INDEX_ARTICLE";
+export const SEARCH_ARTICLE = "SEARCH_ARTICLE";
