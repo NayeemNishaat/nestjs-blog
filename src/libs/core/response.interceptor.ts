@@ -4,10 +4,10 @@ import {
   Injectable,
   NestInterceptor
 } from "@nestjs/common";
-import { ResponseBaseDTO } from "src/libs/core/dto/base.dto";
+import { ResponseBaseDTO } from "./dto/base.dto";
 import { Observable } from "rxjs";
 import { map } from "rxjs/operators";
-import ResponseConstants from "src/constants/response.constant";
+import ResponseConstants from "../../constants/response.constant";
 
 @Injectable()
 export class ResponseInterceptor<T>

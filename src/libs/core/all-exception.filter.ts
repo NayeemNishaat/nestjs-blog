@@ -7,7 +7,7 @@ import {
 } from "@nestjs/common";
 import { HttpAdapterHost } from "@nestjs/core";
 import { Response } from "express";
-import ResponseConstants from "src/constants/response.constant";
+import ResponseConstants from "../../constants/response.constant";
 import { ILogger, Logger } from "../logging/logger";
 
 @Catch()

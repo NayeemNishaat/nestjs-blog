@@ -2,7 +2,7 @@ import { Controller, Get, UseInterceptors } from "@nestjs/common";
 import { AppService } from "./app.service";
 import { ILogger, Logger } from "./libs/logging/logger";
 import { ApiOkResponse, ApiTags } from "@nestjs/swagger";
-import { ResponseInterceptor } from "src/libs/core/response.interceptor";
+import { ResponseInterceptor } from "./libs/core/response.interceptor";
 
 @Controller()
 @ApiTags("Health")
