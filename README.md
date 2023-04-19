@@ -2,7 +2,7 @@
 
 http://localhost:3000/api
 
-### Please create the .env file by following .env.example file before running the microservice.
+### Please create the .env file by following .env.example file before running the application.
 
 ## Installation
 

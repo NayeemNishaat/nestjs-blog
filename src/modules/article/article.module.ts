@@ -8,6 +8,8 @@ import { ArticleService } from "./article.service";
 import { ArticleController } from "./article.controller";
 import { SEARCH_CLIENT } from "src/constants/module.constant";
 import { Transport } from "@nestjs/microservices";
+import { APP_GUARD } from "@nestjs/core";
+import { ThrottlerGuard } from "@nestjs/throttler";
 
 @Module({
   imports: [
@@ -31,6 +33,12 @@ import { Transport } from "@nestjs/microservices";
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }])
   ],
   controllers: [ArticleController],
-  providers: [ArticleService]
+  providers: [
+    ArticleService,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard
+    }
+  ]
 })
 export class ArticleModule {}

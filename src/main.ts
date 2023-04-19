@@ -3,6 +3,8 @@ import { ValidationPipe } from "@nestjs/common";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
 import helmet from "helmet";
+const mongoSanitize = require("express-mongo-sanitize");
+const xss = require("xss-clean");
 import { AppModule } from "./app.module";
 import { AllExceptionFilter } from "./libs/core/all-exception.filter";
 import { Transport, MicroserviceOptions } from "@nestjs/microservices";
@@ -21,6 +23,8 @@ async function server() {
 
   app.use(helmet());
   app.enableCors();
+  app.use(mongoSanitize());
+  app.use(xss());
   app.setGlobalPrefix("api/v1");
 
   const httpAdapter = app.get(HttpAdapterHost);

@@ -1,10 +1,10 @@
 {
-  "name": "fileurlms",
-  "version": "0.0.1",
+  "name": "blog",
+  "version": "1.0.0",
   "description": "A CRUD API.",
   "author": "NayeemNishaat",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "MIT",
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
@@ -37,14 +37,16 @@
     "amqplib": "^0.10.3",
     "cache-manager": "^5.2.0",
     "class-transformer": "^0.5.1",
-    "class-validator": "^0.13.2",
+    "class-validator": "^0.14.0",
+    "express-mongo-sanitize": "^2.2.0",
     "helmet": "^6.1.5",
     "mongoose": "^7.0.3",
     "morgan": "^1.10.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
-    "winston": "^3.8.1"
+    "winston": "^3.8.1",
+    "xss-clean": "^0.1.1"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",

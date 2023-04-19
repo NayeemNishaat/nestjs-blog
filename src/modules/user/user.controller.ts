@@ -1,7 +1,6 @@
 import { UserService } from "./user.service";
 import { ILogger, Logger } from "../../libs/logging/logger";
 import { CreateUserDto, UserResDto, UpdateUserDto } from "./dto/user.dto";
-
 import {
   Controller,
   Post,

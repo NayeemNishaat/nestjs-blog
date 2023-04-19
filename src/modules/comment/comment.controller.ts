@@ -2,15 +2,7 @@ import { CommentService } from "./comment.service";
 import { ILogger, Logger } from "../../libs/logging/logger";
 import { CreateCommentDto } from "./dto/comment.dto";
 
-import {
-  Controller,
-  Post,
-  Body,
-  Param,
-  Query,
-  UseInterceptors,
-  HttpException
-} from "@nestjs/common";
+import { Controller, Post, Body, UseInterceptors } from "@nestjs/common";
 import { ResponseInterceptor } from "src/libs/core/response.interceptor";
 import { ApiTags, ApiOperation, ApiCreatedResponse } from "@nestjs/swagger";
 
