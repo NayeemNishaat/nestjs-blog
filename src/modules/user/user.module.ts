@@ -1,7 +1,7 @@
 import { Module } from "@nestjs/common";
 import { MongooseModule } from "@nestjs/mongoose";
 import { ThrottlerGuard } from "@nestjs/throttler";
-import { User, UserSchema } from "src/models/user.entity";
+import { User, UserSchema } from "../../models/user.entity";
 import { UserService } from "./user.service";
 import { UserController } from "./user.controller";
 import { APP_GUARD } from "@nestjs/core";
