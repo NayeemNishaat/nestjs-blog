@@ -11,14 +11,16 @@ import {
   Param,
   Query,
   UseInterceptors,
-  HttpException
+  HttpException,
+  DefaultValuePipe
 } from "@nestjs/common";
 import { ResponseInterceptor } from "../../libs/core/response.interceptor";
 import {
   ApiOkResponse,
   ApiTags,
   ApiOperation,
-  ApiCreatedResponse
+  ApiCreatedResponse,
+  ApiQuery
 } from "@nestjs/swagger";
 
 @ApiTags("User API")
@@ -72,9 +74,11 @@ export class UserController {
   @ApiOperation({
     summary: "Get all Users"
   })
+  @ApiQuery({ name: "page", required: false, type: Number })
+  @ApiQuery({ name: "limit", required: false, type: Number })
   async getAllUsers(
-    @Query("page") page: number = 1,
-    @Query("limit") limit: number = 10
+    @Query("page", new DefaultValuePipe(1)) page?: number,
+    @Query("limit", new DefaultValuePipe(10)) limit?: number
   ) {
     this.logger.info(`[GET - /user/:page/:limit] => ${JSON.stringify(null)}`);
 

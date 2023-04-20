@@ -82,7 +82,7 @@ export class ArticleController {
 
     if (page < 1) throw new HttpException("Page must be greater than 0", 400);
 
-    if (search) return this.articleService.searchArticles(search);
+    if (search) return this.articleService.searchArticles(search, page, limit);
 
     return await this.articleService.getAllArticles(page, limit);
   }

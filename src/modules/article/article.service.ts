@@ -33,7 +33,7 @@ export class ArticleService {
     return createdArticle;
   }
 
-  async searchArticles(text: string) {
+  async searchArticles(text: string, page: number, limit: number) {
     const results = await firstValueFrom<{ _source: iArticle }[]>(
       this.client.send(SEARCH_ARTICLE, text)
     );
@@ -42,9 +42,12 @@ export class ArticleService {
     if (!ids.length) {
       return [];
     }
-    return this.articleModel.find({
-      _id: { $in: ids }
-    });
+    return this.articleModel
+      .find({
+        _id: { $in: ids }
+      })
+      .skip((page - 1) * limit)
+      .limit(limit);
   }
 
   async getArticleById(id: string): Promise<Article> {
