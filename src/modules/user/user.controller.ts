@@ -117,7 +117,7 @@ export class UserController {
   @ApiOperation({
     summary: "Delete a User"
   })
-  async deleteFileUrl(@Param("id") id: string) {
+  async deleteUser(@Param("id") id: string) {
     this.logger.info(`[DELETE - /user/:id] => ${JSON.stringify({ id })}`);
 
     try {

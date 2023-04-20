@@ -61,4 +61,31 @@ describe("UserController", () => {
       expect(result).toEqual(user);
     });
   });
+
+  describe("getAllUsers", () => {
+    it("should return all the users", async () => {
+      const spy = jest.spyOn(userService, "getAllUsers").mockResolvedValue([]);
+
+      const result = await userController.getAllUsers();
+
+      expect(spy).toBeCalled();
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe("getAllUsers", () => {
+    it("should return all the users", async () => {
+      const id = new mongoose.Types.ObjectId() as unknown as string;
+      const spy = jest
+        .spyOn(userService, "deleteUser")
+        .mockImplementation(async () => {
+          return mockUserModel.deleteOne({ _id: id });
+        });
+
+      await userController.deleteUser(id);
+
+      expect(spy).toBeDefined();
+      expect(spy).toBeCalledWith(id);
+    });
+  });
 });
