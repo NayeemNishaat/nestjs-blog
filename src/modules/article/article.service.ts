@@ -1,12 +1,12 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { Model, UpdateQuery } from "mongoose";
 import { InjectModel } from "@nestjs/mongoose";
-import { Article } from "src/models/article.entity";
-import { User } from "src/models/user.entity";
+import { Article } from "../../models/article.entity";
+import { User } from "../../models/user.entity";
 import { CreateArticleDto, LikeDislikeArticleDto } from "./dto/article.dto";
-import { SEARCH_CLIENT } from "src/constants/module.constant";
+import { SEARCH_CLIENT } from "../../constants/module.constant";
 import { ClientProxy } from "@nestjs/microservices";
-import { INDEX_ARTICLE, SEARCH_ARTICLE } from "src/constants/broker.constant";
+import { INDEX_ARTICLE, SEARCH_ARTICLE } from "../../constants/broker.constant";
 import { firstValueFrom } from "rxjs";
 
 interface iArticle extends Article {

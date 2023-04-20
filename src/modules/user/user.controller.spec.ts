@@ -2,13 +2,12 @@ import { UserController } from "./user.controller";
 import { UserService } from "./user.service";
 import { getModelToken } from "@nestjs/mongoose";
 import { Test } from "@nestjs/testing";
-import { User, UserDocument } from "../../models/user.entity";
-import mongoose, { Model } from "mongoose";
+import { User } from "../../models/user.entity";
+import mongoose from "mongoose";
 
 describe("UserController", () => {
   let userController: UserController;
   let userService: UserService;
-  let mockUserModel: Model<UserDocument>;
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -24,9 +23,6 @@ describe("UserController", () => {
 
     userService = moduleRef.get<UserService>(UserService);
     userController = moduleRef.get<UserController>(UserController);
-    mockUserModel = moduleRef.get<Model<UserDocument>>(
-      getModelToken(User.name)
-    );
   });
 
   describe("createUser", () => {
@@ -35,13 +31,7 @@ describe("UserController", () => {
 
       jest.spyOn(userService, "createUser").mockResolvedValue(user);
 
-      expect(
-        await userController.createUser({
-          firstName: "John",
-          lastName: "Doe",
-          email: "abc@gmail.com"
-        })
-      ).toBe(user);
+      expect(await userController.createUser(user)).toBe(user);
     });
   });
 

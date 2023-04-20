@@ -6,8 +6,9 @@ import { Comment, CommentDocument } from "../../models/comment.entity";
 import { Article } from "../../models/article.entity";
 import { Model } from "mongoose";
 import { CreateCommentDto } from "./dto/comment.dto";
+import { getComment } from "./stub/comment.stub";
 
-describe("UserController", () => {
+describe("CommentController", () => {
   let commentController: CommentController;
   let commentService: CommentService;
   let mockCommentModel: Model<CommentDocument>;
@@ -20,7 +21,7 @@ describe("UserController", () => {
         {
           provide: getModelToken(Comment.name),
           useValue: {
-            create: jest.fn().mockResolvedValue({})
+            create: jest.fn().mockResolvedValue(getComment())
           }
         },
         {
@@ -50,7 +51,7 @@ describe("UserController", () => {
       const result = await commentController.createComment(createCommentDto);
 
       expect(spy).toBeCalledWith(createCommentDto);
-      expect(result).toEqual({});
+      expect(result).toEqual(getComment());
     });
   });
 });

@@ -14,7 +14,7 @@ import {
   HttpException,
   DefaultValuePipe
 } from "@nestjs/common";
-import { ResponseInterceptor } from "src/libs/core/response.interceptor";
+import { ResponseInterceptor } from "../../libs/core/response.interceptor";
 import {
   ApiOkResponse,
   ApiTags,

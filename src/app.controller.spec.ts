@@ -14,9 +14,9 @@ describe("AppController", () => {
     it("should return Operational", async () => {
       const result = { status: "Operational" };
 
-      //   jest
-      //     .spyOn(appService, "getHealth")
-      //     .mockImplementation(async () => ({ status: "K" }));
+      jest
+        .spyOn(appService, "getHealth")
+        .mockImplementation(async () => result);
 
       expect(await appController.getHealth()).toEqual(result);
     });

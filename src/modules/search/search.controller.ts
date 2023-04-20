@@ -7,7 +7,7 @@ import {
   RmqContext,
   Transport
 } from "@nestjs/microservices";
-import { INDEX_ARTICLE, SEARCH_ARTICLE } from "src/constants/broker.constant";
+import { INDEX_ARTICLE, SEARCH_ARTICLE } from "../../constants/broker.constant";
 import { Controller } from "@nestjs/common";
 import { CreateArticleDto } from "../article/dto/article.dto";
 import { RpcException } from "@nestjs/microservices";
