@@ -73,14 +73,10 @@ describe("UserController", () => {
     });
   });
 
-  describe("getAllUsers", () => {
-    it("should return all the users", async () => {
+  describe("deleteUser", () => {
+    it("should delete a user", async () => {
       const id = new mongoose.Types.ObjectId() as unknown as string;
-      const spy = jest
-        .spyOn(userService, "deleteUser")
-        .mockImplementation(async () => {
-          return mockUserModel.deleteOne({ _id: id });
-        });
+      const spy = jest.spyOn(userService, "deleteUser").mockResolvedValue({});
 
       await userController.deleteUser(id);
 
