@@ -58,11 +58,7 @@ export class UserController {
   async getUserById(@Param("id") id: string) {
     this.logger.info(`[GET - /user/:id] => ${JSON.stringify({ id })}`);
 
-    try {
-      return await this.userService.getUserById(id);
-    } catch (err: any) {
-      throw new HttpException("User not found", 404);
-    }
+    return await this.userService.getUserById(id);
   }
 
   @Get("/")

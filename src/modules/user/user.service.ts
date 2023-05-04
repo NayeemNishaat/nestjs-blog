@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { Model, UpdateQuery } from "mongoose";
 import { InjectModel } from "@nestjs/mongoose";
-import { User } from "../../models/user.entity";
+import { User, UserDocument } from "../../models/user.entity";
 import { CreateUserDto, UpdateUserDto } from "./dto/user.dto";
 
 @Injectable()
@@ -11,16 +11,16 @@ export class UserService {
     private userModel: Model<User>
   ) {}
 
-  async createUser(createUserDto: CreateUserDto): Promise<User> {
+  async createUser(createUserDto: CreateUserDto): Promise<UserDocument> {
     const createdUser = new this.userModel(createUserDto);
     return await createdUser.save();
   }
 
-  async getUserById(id: string): Promise<User> {
+  async getUserById(id: string): Promise<UserDocument> {
     return await this.userModel.findOne({ _id: id }).populate("likedArticles");
   }
 
-  async getAllUsers(page: number, limit: number): Promise<User[]> {
+  async getAllUsers(page: number, limit: number): Promise<UserDocument[]> {
     return await this.userModel
       .find({})
       .skip((page - 1) * limit)
@@ -30,11 +30,15 @@ export class UserService {
   async updateUser(
     id: string,
     updateUserDto: UpdateUserDto
-  ): Promise<UpdateQuery<User>> {
+  ): Promise<UpdateQuery<UserDocument>> {
     return await this.userModel.updateOne({ _id: id }, { ...updateUserDto });
   }
 
-  async deleteUser(id: string): Promise<UpdateQuery<User>> {
+  async deleteUser(id: string): Promise<UpdateQuery<UserDocument>> {
     return await this.userModel.deleteOne({ _id: id });
+  }
+
+  async deleteAllUser(): Promise<UpdateQuery<UserDocument>> {
+    return await this.userModel.deleteMany();
   }
 }
