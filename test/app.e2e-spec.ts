@@ -6,7 +6,7 @@ import { AppModule } from "../src/app.module";
 describe("AppController (e2e)", () => {
   let app: INestApplication;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
       imports: [AppModule]
     }).compile();
@@ -31,5 +31,9 @@ describe("AppController (e2e)", () => {
         type: "object",
         data: { status: "Operational" }
       });
+  });
+
+  it("/ (GET)", () => {
+    return request(app.getHttpServer()).get("/").expect(404);
   });
 });
