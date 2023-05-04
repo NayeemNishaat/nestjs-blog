@@ -4,6 +4,7 @@ import { CacheModule } from "@nestjs/cache-manager";
 import { ClientProxyFactory, Transport } from "@nestjs/microservices";
 import { Article, ArticleSchema } from "../../models/article.entity";
 import { User, UserSchema } from "../../models/user.entity";
+import { Comment, CommentSchema } from "../../models/comment.entity";
 import { ArticleService } from "./article.service";
 import { ArticleController } from "./article.controller";
 import { SEARCH_CLIENT } from "../../constants/module.constant";
@@ -17,7 +18,8 @@ import { ThrottlerGuard } from "@nestjs/throttler";
       max: +process.env.MAX_ITEMS
     }),
     MongooseModule.forFeature([{ name: Article.name, schema: ArticleSchema }]),
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }])
+    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    MongooseModule.forFeature([{ name: Comment.name, schema: CommentSchema }])
   ],
   controllers: [ArticleController],
   providers: [

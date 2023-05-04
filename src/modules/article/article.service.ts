@@ -1,7 +1,7 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { Model, UpdateQuery } from "mongoose";
 import { InjectModel } from "@nestjs/mongoose";
-import { Article } from "../../models/article.entity";
+import { Article, ArticleDocument } from "../../models/article.entity";
 import { User } from "../../models/user.entity";
 import { CreateArticleDto, LikeDislikeArticleDto } from "./dto/article.dto";
 import { SEARCH_CLIENT } from "../../constants/module.constant";
@@ -22,11 +22,13 @@ export class ArticleService {
     @Inject(SEARCH_CLIENT) private client: ClientProxy
   ) {}
 
-  async createArticle(createArticleDto: CreateArticleDto): Promise<Article> {
+  async createArticle(
+    createArticleDto: CreateArticleDto
+  ): Promise<ArticleDocument> {
     const createdArticle = new this.articleModel(createArticleDto);
     await createdArticle.save();
     createArticleDto["id"] = createdArticle._id;
-    console.log(this.client);
+
     const res = this.client.send(INDEX_ARTICLE, createArticleDto);
     res.subscribe();
 
@@ -50,7 +52,7 @@ export class ArticleService {
       .limit(limit);
   }
 
-  async getArticleById(id: string): Promise<Article> {
+  async getArticleById(id: string): Promise<ArticleDocument> {
     return await this.articleModel.findOne({ _id: id }).populate([
       { path: "author", model: "User" },
       {
@@ -61,7 +63,10 @@ export class ArticleService {
     ]);
   }
 
-  async getAllArticles(page: number, limit: number): Promise<Article[]> {
+  async getAllArticles(
+    page: number,
+    limit: number
+  ): Promise<ArticleDocument[]> {
     return await this.articleModel
       .find({})
       .skip((page - 1) * limit)
@@ -70,7 +75,7 @@ export class ArticleService {
 
   async likeArticle(
     likeDislikeArticleDto: LikeDislikeArticleDto
-  ): Promise<UpdateQuery<Article>> {
+  ): Promise<UpdateQuery<ArticleDocument>> {
     // Part: If user already disliked the article, remove it
     const alreadyDisliked = await this.userModel.count({
       _id: likeDislikeArticleDto.userId,
@@ -132,7 +137,7 @@ export class ArticleService {
 
   async dislikeArticle(
     likeDislikeArticleDto: LikeDislikeArticleDto
-  ): Promise<UpdateQuery<Article>> {
+  ): Promise<UpdateQuery<ArticleDocument>> {
     // Part: If user already liked the article, remove it
     const alreadyLiked = await this.userModel.count({
       _id: likeDislikeArticleDto.userId,
@@ -190,5 +195,9 @@ export class ArticleService {
         $inc: { dislikes: 1 }
       }
     );
+  }
+
+  async deleteAllArticle(): Promise<UpdateQuery<ArticleDocument>> {
+    return await this.articleModel.deleteMany();
   }
 }

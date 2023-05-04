@@ -5,8 +5,6 @@ import { ArticleModule } from "../src/modules/article/article.module";
 import { MongooseModule } from "@nestjs/mongoose";
 import { ThrottlerModule } from "@nestjs/throttler";
 import { ArticleService } from "../src/modules/article/article.service";
-import { CacheModule } from "@nestjs/cache-manager";
-import { ClientsModule, Transport } from "@nestjs/microservices";
 import { ConfigModule } from "@nestjs/config";
 
 describe("ArticleController (e2e)", () => {
@@ -36,7 +34,7 @@ describe("ArticleController (e2e)", () => {
     app = moduleRef.createNestApplication();
     await app.init();
 
-    // articleService = moduleRef.get<ArticleService>(ArticleService);
+    articleService = moduleRef.get<ArticleService>(ArticleService);
   });
 
   afterAll(async () => {
@@ -45,11 +43,11 @@ describe("ArticleController (e2e)", () => {
 
   afterEach(async () => {
     // Note: Trancate DB
-    // await articleService.dislikeArticle();
+    await articleService.deleteAllArticle();
   });
 
-  it("/article (POST)", () => {
-    return request(app.getHttpServer())
+  it("/article (POST)", async () => {
+    await request(app.getHttpServer())
       .post("/article")
       .send({
         name: "My Article",
@@ -62,35 +60,39 @@ describe("ArticleController (e2e)", () => {
       .expect(201);
   });
 
-  // it("/user (GET)", async () => {
-  //   const user = await userService.createUser({
-  //     firstName: "John",
-  //     lastName: "Doe",
-  //     email: "abc@gmail.com"
-  //   });
+  it("/user (GET)", async () => {
+    const article = await articleService.createArticle({
+      name: "My Article",
+      body: "This is my article",
+      author: "6439383e06b3b43356b39e4f",
+      categories: ["tech", "science"],
+      tags: ["Ok", "Good"]
+    });
 
-  //   const { body } = await request(app.getHttpServer())
-  //     .get("/user")
-  //     .expect(200);
+    const { body } = await request(app.getHttpServer())
+      .get("/article")
+      .expect(200);
 
-  //   expect(body.data).toHaveLength(1);
-  //   expect(body.data[0].email).toEqual(user.email);
-  // });
+    expect(body.data).toHaveLength(1);
+    expect(body.data[0].name).toEqual(article.name);
+  });
 
-  // it("/user/:id (GET)", async () => {
-  //   const user = await userService.createUser({
-  //     firstName: "John",
-  //     lastName: "Doe",
-  //     email: "abc@gmail.com"
-  //   });
+  it("/article/:id (GET)", async () => {
+    const article = await articleService.createArticle({
+      name: "My Article",
+      body: "This is my article",
+      author: "6439383e06b3b43356b39e4f",
+      categories: ["tech", "science"],
+      tags: ["Ok", "Good"]
+    });
 
-  //   const { body } = await request(app.getHttpServer())
-  //     .get(`/user/${user._id.toString()}`)
-  //     .accept("application/json")
-  //     .expect(200);
+    const { body } = await request(app.getHttpServer())
+      .get(`/article/${article._id.toString()}`)
+      .accept("application/json")
+      .expect(200);
 
-  //   expect(body.data._id).toEqual(user._id.toString());
-  // });
+    expect(body.data._id).toEqual(article._id.toString());
+  });
 
   // it("/user/:id (PATCH)", async () => {
   //   const user = await userService.createUser({
