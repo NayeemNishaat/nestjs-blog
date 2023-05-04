@@ -5,7 +5,7 @@ import { CommentModule } from "../src/modules/comment/comment.module";
 import { MongooseModule } from "@nestjs/mongoose";
 import { ThrottlerModule } from "@nestjs/throttler";
 
-describe("AppController (e2e)", () => {
+describe("CommentController (e2e)", () => {
   let app: INestApplication;
 
   beforeAll(async () => {

@@ -6,7 +6,7 @@ import { MongooseModule } from "@nestjs/mongoose";
 import { ThrottlerModule } from "@nestjs/throttler";
 import { UserService } from "../src/modules/user/user.service";
 
-describe("AppController (e2e)", () => {
+describe("UserController (e2e)", () => {
   let app: INestApplication;
   let userService: UserService;
 

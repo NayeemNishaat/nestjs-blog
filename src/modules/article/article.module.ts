@@ -1,13 +1,12 @@
 import { Module } from "@nestjs/common";
 import { MongooseModule } from "@nestjs/mongoose";
 import { CacheModule } from "@nestjs/cache-manager";
-import { ClientsModule } from "@nestjs/microservices";
+import { ClientProxyFactory, Transport } from "@nestjs/microservices";
 import { Article, ArticleSchema } from "../../models/article.entity";
 import { User, UserSchema } from "../../models/user.entity";
 import { ArticleService } from "./article.service";
 import { ArticleController } from "./article.controller";
 import { SEARCH_CLIENT } from "../../constants/module.constant";
-import { Transport } from "@nestjs/microservices";
 import { APP_GUARD } from "@nestjs/core";
 import { ThrottlerGuard } from "@nestjs/throttler";
 
@@ -17,18 +16,6 @@ import { ThrottlerGuard } from "@nestjs/throttler";
       ttl: +process.env.TTL, // Remark: Caching expires after 30 seconds.
       max: +process.env.MAX_ITEMS
     }),
-    ClientsModule.register([
-      {
-        name: SEARCH_CLIENT,
-        transport: Transport.RMQ,
-        options: {
-          urls: ["amqp://localhost:5672"],
-          queue: "laby",
-          noAck: false,
-          queueOptions: { durable: false }
-        }
-      }
-    ]),
     MongooseModule.forFeature([{ name: Article.name, schema: ArticleSchema }]),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }])
   ],
@@ -38,6 +25,19 @@ import { ThrottlerGuard } from "@nestjs/throttler";
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard
+    },
+    {
+      provide: SEARCH_CLIENT,
+      useFactory: () =>
+        ClientProxyFactory.create({
+          transport: Transport.RMQ,
+          options: {
+            urls: [process.env.RABBITMQ_URI],
+            queue: process.env.RABBITMQ_QUEUE,
+            noAck: false,
+            queueOptions: { durable: false }
+          }
+        })
     }
   ]
 })

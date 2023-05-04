@@ -26,7 +26,7 @@ export class ArticleService {
     const createdArticle = new this.articleModel(createArticleDto);
     await createdArticle.save();
     createArticleDto["id"] = createdArticle._id;
-
+    console.log(this.client);
     const res = this.client.send(INDEX_ARTICLE, createArticleDto);
     res.subscribe();
 
