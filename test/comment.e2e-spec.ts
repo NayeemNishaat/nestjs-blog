@@ -4,6 +4,7 @@ import request from "supertest";
 import { CommentModule } from "../src/modules/comment/comment.module";
 import { MongooseModule } from "@nestjs/mongoose";
 import { ThrottlerModule } from "@nestjs/throttler";
+import { ConfigModule } from "@nestjs/config";
 
 describe("CommentController (e2e)", () => {
   let app: INestApplication;
@@ -12,14 +13,18 @@ describe("CommentController (e2e)", () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
       imports: [
         CommentModule,
+        ThrottlerModule.forRoot({
+          ttl: +process.env.THROTTLE_TTL,
+          limit: +process.env.THROTTLE_LIMIT
+        }),
+        ConfigModule.forRoot({
+          isGlobal: true,
+          envFilePath: ".env.test"
+        }),
         MongooseModule.forRootAsync({
           useFactory: () => ({
-            uri: "mongodb://localhost:27017/test_blog" // Remark: Using test_blog db for testing
+            uri: process.env.MONGO_URI
           })
-        }),
-        ThrottlerModule.forRoot({
-          ttl: 60,
-          limit: 10
         })
       ]
     }).compile();
