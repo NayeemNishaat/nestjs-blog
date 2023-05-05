@@ -43,17 +43,22 @@ export class SearchService {
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
 
-    await this.elasticsearchService.deleteByQuery({
-      index: this.idx,
-      body: {
-        query: {
-          match_all: {}
+    try {
+      await this.elasticsearchService.deleteByQuery({
+        index: this.idx,
+        body: {
+          query: {
+            match_all: {}
+          }
         }
-      }
-    });
+      });
 
-    channel.ack(originalMsg);
-    return true;
+      channel.ack(originalMsg);
+      return true;
+    } catch (err) {
+      channel.ack(originalMsg);
+      return false;
+    }
   }
 
   async update(article: iCreateArticleDto) {
@@ -100,7 +105,7 @@ export class SearchService {
         }
       }
     });
-    console.log(hits.hits);
+
     channel.ack(originalMsg);
     return hits.hits;
   }

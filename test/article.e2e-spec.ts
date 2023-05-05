@@ -63,186 +63,196 @@ describe("ArticleController (e2e)", () => {
     await server.close();
   });
 
-  afterEach(async () => {
+  beforeEach(async () => {
     // Note: Trancate DB
     await articleService.deleteAllArticle();
     await userService.deleteAllUser();
   });
 
-  // it("/article (POST)", async () => {
-  //   await request(server)
-  //     .post("/article")
-  //     .send({
-  //       name: "My Article",
-  //       body: "This is my article",
-  //       author: "6439383e06b3b43356b39e4f",
-  //       categories: ["tech", "science"],
-  //       tags: ["Ok", "Good"]
-  //     })
-  //     .set("Content-Type", "application/json")
-  //     .expect(201);
-  // });
+  it("/article (POST)", async () => {
+    await request(server)
+      .post("/article")
+      .send({
+        name: "My Article",
+        body: "This is my article",
+        author: "6439383e06b3b43356b39e4f",
+        categories: ["tech", "science"],
+        tags: ["Ok", "Good"]
+      })
+      .set("Content-Type", "application/json")
+      .expect(201);
+  });
 
-  // it("/article (GET)", async () => {
-  //   const article = await articleService.createArticle({
-  //     name: "My Article",
-  //     body: "This is my article",
-  //     author: "6439383e06b3b43356b39e4f",
-  //     categories: ["tech", "science"],
-  //     tags: ["Ok", "Good"]
-  //   });
-
-  //   const { body } = await request(server).get("/article").expect(200);
-
-  //   expect(body.data).toHaveLength(1);
-  //   expect(body.data[0].name).toEqual(article.name);
-  // });
-
-  it("searches articles", async () => {
-    await articleService.createArticle({
-      name: "My Article BBBB",
+  it("/article (GET)", async () => {
+    const article = await articleService.createArticle({
+      name: "My Article",
       body: "This is my article",
       author: "6439383e06b3b43356b39e4f",
       categories: ["tech", "science"],
       tags: ["Ok", "Good"]
     });
 
-    // await articleService.createArticle({
-    //   name: "My Article",
-    //   body: "This is my article",
-    //   author: "6439383e06b3b43356b39e4f",
-    //   categories: ["math", "history"],
-    //   tags: ["fine", "awesome"]
-    // });
+    const { body } = await request(server).get("/article").expect(200);
 
-    const { body } = await request(server)
-      .get("/article")
-      .set("Accept", "application/json")
-      .query({ search: "ok" })
-      .expect(200);
-    console.log(body);
-    expect(body.data[0].categories).toContain("science");
-    // expect(body.data[0].name).toEqual(article.name);
+    expect(body.data).toHaveLength(1);
+    expect(body.data[0].name).toEqual(article.name);
   });
 
-  // it("/article/:id (GET)", async () => {
-  //   const article = await articleService.createArticle({
-  //     name: "My Article",
-  //     body: "This is my article",
-  //     author: "6439383e06b3b43356b39e4f",
-  //     categories: ["tech", "science"],
-  //     tags: ["Ok", "Good"]
-  //   });
+  it("searches articles", (done) => {
+    // Important: Using Promise instead of Async/Await because Jest doesn't call setTimeout with Async/Await. We need setTimeout to give some time to ElasticSearch to index the docs.
+    new Promise((resolve, _reject) => {
+      articleService.createArticle({
+        name: "My Article 1",
+        body: "This is my article",
+        author: "6439383e06b3b43356b39e4f",
+        categories: ["tech", "science"],
+        tags: ["Ok", "Good"]
+      });
 
-  //   const { body } = await request(server)
-  //     .get(`/article/${article._id.toString()}`)
-  //     .accept("application/json")
-  //     .expect(200);
+      articleService.createArticle({
+        name: "My Article 1",
+        body: "This is my article",
+        author: "6439383e06b3b43356b39e4f",
+        categories: ["Math", "history"],
+        tags: ["normal", "Awesome"]
+      });
+      resolve(true);
+    }).then(() => {
+      setTimeout(() => {
+        new Promise((resolve, _reject) => {
+          resolve(
+            request(server)
+              .get("/article")
+              .set("Accept", "application/json")
+              .query({ search: "science" })
+              .expect(200)
+          );
+        }).then(({ body }: any) => {
+          expect(body.data[0].categories).toContain("science");
+          done();
+        });
+      }, 1000);
+    });
+  });
 
-  //   expect(body.data._id).toEqual(article._id.toString());
-  // });
+  it("/article/:id (GET)", async () => {
+    const article = await articleService.createArticle({
+      name: "My Article",
+      body: "This is my article",
+      author: "6439383e06b3b43356b39e4f",
+      categories: ["tech", "science"],
+      tags: ["Ok", "Good"]
+    });
 
-  // it("/article/like (PATCH)", async () => {
-  //   const article = await articleService.createArticle({
-  //     name: "My Article",
-  //     body: "This is my article",
-  //     author: "6439383e06b3b43356b39e4f",
-  //     categories: ["tech", "science"],
-  //     tags: ["Ok", "Good"]
-  //   });
+    const { body } = await request(server)
+      .get(`/article/${article._id.toString()}`)
+      .accept("application/json")
+      .expect(200);
 
-  //   await request(server)
-  //     .patch(`/article/like`)
-  //     .set("Content-Type", "application/json")
-  //     .send({
-  //       articleId: article._id.toString(),
-  //       userId: "6439383e06b3b43356b39e4f"
-  //     })
-  //     .expect(200);
+    expect(body.data._id).toEqual(article._id.toString());
+  });
 
-  //   const likedArticle = await articleService.getArticleById(
-  //     article._id.toString()
-  //   );
+  it("/article/like (PATCH)", async () => {
+    const article = await articleService.createArticle({
+      name: "My Article",
+      body: "This is my article",
+      author: "6439383e06b3b43356b39e4f",
+      categories: ["tech", "science"],
+      tags: ["Ok", "Good"]
+    });
 
-  //   expect(likedArticle._id).toEqual(article._id);
-  //   expect(likedArticle.likes).toEqual(1);
-  // });
+    await request(server)
+      .patch(`/article/like`)
+      .set("Content-Type", "application/json")
+      .send({
+        articleId: article._id.toString(),
+        userId: "6439383e06b3b43356b39e4f"
+      })
+      .expect(200);
 
-  // it("/article/dislike (PATCH)", async () => {
-  //   const article = await articleService.createArticle({
-  //     name: "My Article",
-  //     body: "This is my article",
-  //     author: "6439383e06b3b43356b39e4f",
-  //     categories: ["tech", "science"],
-  //     tags: ["Ok", "Good"]
-  //   });
+    const likedArticle = await articleService.getArticleById(
+      article._id.toString()
+    );
 
-  //   await request(server)
-  //     .patch(`/article/dislike`)
-  //     .set("Content-Type", "application/json")
-  //     .send({
-  //       articleId: article._id.toString(),
-  //       userId: "6439383e06b3b43356b39e4f"
-  //     })
-  //     .expect(200);
+    expect(likedArticle._id).toEqual(article._id);
+    expect(likedArticle.likes).toEqual(1);
+  });
 
-  //   const dislikedArticle = await articleService.getArticleById(
-  //     article._id.toString()
-  //   );
+  it("/article/dislike (PATCH)", async () => {
+    const article = await articleService.createArticle({
+      name: "My Article",
+      body: "This is my article",
+      author: "6439383e06b3b43356b39e4f",
+      categories: ["tech", "science"],
+      tags: ["Ok", "Good"]
+    });
 
-  //   expect(dislikedArticle._id).toEqual(article._id);
-  //   expect(dislikedArticle.dislikes).toEqual(1);
-  // });
+    await request(server)
+      .patch(`/article/dislike`)
+      .set("Content-Type", "application/json")
+      .send({
+        articleId: article._id.toString(),
+        userId: "6439383e06b3b43356b39e4f"
+      })
+      .expect(200);
 
-  // it("likes and then dislikes an article by the same user", async () => {
-  //   // Part: Create New User
-  //   const user = await userService.createUser({
-  //     email: "Myemail@gmail.com",
-  //     firstName: "Nayee,",
-  //     lastName: "Nishaat"
-  //   });
+    const dislikedArticle = await articleService.getArticleById(
+      article._id.toString()
+    );
 
-  //   // Part: Create New Article
-  //   const article = await articleService.createArticle({
-  //     name: "My Article",
-  //     body: "This is my article",
-  //     author: user._id.toString(),
-  //     categories: ["tech", "science"],
-  //     tags: ["Ok", "Good"]
-  //   });
+    expect(dislikedArticle._id).toEqual(article._id);
+    expect(dislikedArticle.dislikes).toEqual(1);
+  });
 
-  //   // Part: Like an Article
-  //   await request(server)
-  //     .patch(`/article/like`)
-  //     .set("Content-Type", "application/json")
-  //     .send({
-  //       articleId: article._id.toString(),
-  //       userId: user._id.toString()
-  //     })
-  //     .expect(200);
+  it("likes and then dislikes an article by the same user", async () => {
+    // Part: Create New User
+    const user = await userService.createUser({
+      email: "Myemail@gmail.com",
+      firstName: "Nayee,",
+      lastName: "Nishaat"
+    });
 
-  //   const likedArticle = await articleService.getArticleById(
-  //     article._id.toString()
-  //   );
+    // Part: Create New Article
+    const article = await articleService.createArticle({
+      name: "My Article",
+      body: "This is my article",
+      author: user._id.toString(),
+      categories: ["tech", "science"],
+      tags: ["Ok", "Good"]
+    });
 
-  //   expect(likedArticle.likes).toEqual(1);
-  //   expect(likedArticle.dislikes).toEqual(0);
+    // Part: Like an Article
+    await request(server)
+      .patch(`/article/like`)
+      .set("Content-Type", "application/json")
+      .send({
+        articleId: article._id.toString(),
+        userId: user._id.toString()
+      })
+      .expect(200);
 
-  //   // Part: Dislike an Article by the Same User
-  //   await request(server)
-  //     .patch(`/article/dislike`)
-  //     .set("Content-Type", "application/json")
-  //     .send({
-  //       articleId: article._id.toString(),
-  //       userId: user._id.toString()
-  //     })
-  //     .expect(200);
+    const likedArticle = await articleService.getArticleById(
+      article._id.toString()
+    );
 
-  //   const dislikedArticle = await articleService.getArticleById(
-  //     article._id.toString()
-  //   );
+    expect(likedArticle.likes).toEqual(1);
+    expect(likedArticle.dislikes).toEqual(0);
 
-  //   expect(dislikedArticle.dislikes).toEqual(1);
-  //   expect(dislikedArticle.likes).toEqual(0);
-  // });
+    // Part: Dislike an Article by the Same User
+    await request(server)
+      .patch(`/article/dislike`)
+      .set("Content-Type", "application/json")
+      .send({
+        articleId: article._id.toString(),
+        userId: user._id.toString()
+      })
+      .expect(200);
+
+    const dislikedArticle = await articleService.getArticleById(
+      article._id.toString()
+    );
+
+    expect(dislikedArticle.dislikes).toEqual(1);
+    expect(dislikedArticle.likes).toEqual(0);
+  });
 });
