@@ -7,7 +7,11 @@ import {
   RmqContext,
   Transport
 } from "@nestjs/microservices";
-import { INDEX_ARTICLE, SEARCH_ARTICLE } from "../../constants/broker.constant";
+import {
+  INDEX_ARTICLE,
+  SEARCH_ARTICLE,
+  REMOVE_ALL_ARTICLES
+} from "../../constants/broker.constant";
 import { Controller } from "@nestjs/common";
 import { CreateArticleDto } from "../article/dto/article.dto";
 import { RpcException } from "@nestjs/microservices";
@@ -41,6 +45,19 @@ export class SearchController {
 
     try {
       return await this.searchService.search(text, context);
+    } catch (error: any) {
+      throw new RpcException(error);
+    }
+  }
+
+  @MessagePattern(REMOVE_ALL_ARTICLES, Transport.RMQ)
+  async removeAll(@Payload() data: string, @Ctx() context: RmqContext) {
+    this.logger.info(
+      `[MessagePattern - ${REMOVE_ALL_ARTICLES}] => ${JSON.stringify(data)}`
+    );
+
+    try {
+      return await this.searchService.removeAll(context);
     } catch (error: any) {
       throw new RpcException(error);
     }

@@ -6,7 +6,11 @@ import { User } from "../../models/user.entity";
 import { CreateArticleDto, LikeDislikeArticleDto } from "./dto/article.dto";
 import { SEARCH_CLIENT } from "../../constants/module.constant";
 import { ClientProxy } from "@nestjs/microservices";
-import { INDEX_ARTICLE, SEARCH_ARTICLE } from "../../constants/broker.constant";
+import {
+  INDEX_ARTICLE,
+  SEARCH_ARTICLE,
+  REMOVE_ALL_ARTICLES
+} from "../../constants/broker.constant";
 import { firstValueFrom } from "rxjs";
 
 interface iArticle extends Article {
@@ -29,8 +33,9 @@ export class ArticleService {
     await createdArticle.save();
     createArticleDto["id"] = createdArticle._id;
 
-    const res = this.client.send(INDEX_ARTICLE, createArticleDto);
-    res.subscribe();
+    // const res = this.client.send(INDEX_ARTICLE, createArticleDto);
+    // res.subscribe();
+    await firstValueFrom(this.client.send(INDEX_ARTICLE, createArticleDto));
 
     return createdArticle;
   }
@@ -197,6 +202,7 @@ export class ArticleService {
   }
 
   async deleteAllArticle(): Promise<UpdateQuery<ArticleDocument>> {
+    await firstValueFrom(this.client.send(REMOVE_ALL_ARTICLES, "dummy"));
     return await this.articleModel.deleteMany();
   }
 }

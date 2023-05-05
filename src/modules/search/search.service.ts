@@ -17,16 +17,17 @@ export class SearchService {
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
 
-    this.elasticsearchService.index({
+    await this.elasticsearchService.index({
       index: this.idx,
       body: article
     });
 
     channel.ack(originalMsg);
+    return true;
   }
 
   async remove(articleId: number) {
-    this.elasticsearchService.deleteByQuery({
+    await this.elasticsearchService.deleteByQuery({
       index: this.idx,
       body: {
         query: {
@@ -38,12 +39,29 @@ export class SearchService {
     });
   }
 
+  async removeAll(context: RmqContext) {
+    const channel = context.getChannelRef();
+    const originalMsg = context.getMessage();
+
+    await this.elasticsearchService.deleteByQuery({
+      index: this.idx,
+      body: {
+        query: {
+          match_all: {}
+        }
+      }
+    });
+
+    channel.ack(originalMsg);
+    return true;
+  }
+
   async update(article: iCreateArticleDto) {
     const script = Object.entries(article).reduce((result, [key, value]) => {
       return `${result} ctx._source.${key}='${value}';`;
     }, "");
 
-    return this.elasticsearchService.updateByQuery({
+    return await this.elasticsearchService.updateByQuery({
       index: this.idx,
       body: {
         query: {
@@ -82,7 +100,7 @@ export class SearchService {
         }
       }
     });
-
+    console.log(hits.hits);
     channel.ack(originalMsg);
     return hits.hits;
   }
