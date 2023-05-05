@@ -1,5 +1,5 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import { INestApplication } from "@nestjs/common";
+import { HttpServer, INestApplication } from "@nestjs/common";
 import request from "supertest";
 import { ArticleModule } from "../src/modules/article/article.module";
 import { UserModule } from "../src/modules/user/user.module";
@@ -13,6 +13,7 @@ describe("ArticleController (e2e)", () => {
   let app: INestApplication;
   let articleService: ArticleService;
   let userService: UserService;
+  let server: HttpServer;
 
   beforeAll(async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
@@ -37,6 +38,7 @@ describe("ArticleController (e2e)", () => {
 
     app = moduleRef.createNestApplication();
     await app.init();
+    server = app.getHttpServer();
 
     articleService = moduleRef.get<ArticleService>(ArticleService);
     userService = moduleRef.get<UserService>(UserService);
@@ -44,6 +46,7 @@ describe("ArticleController (e2e)", () => {
 
   afterAll(async () => {
     await app.close();
+    await server.close();
   });
 
   afterEach(async () => {
@@ -53,7 +56,7 @@ describe("ArticleController (e2e)", () => {
   });
 
   it("/article (POST)", async () => {
-    await request(app.getHttpServer())
+    await request(server)
       .post("/article")
       .send({
         name: "My Article",
@@ -75,9 +78,7 @@ describe("ArticleController (e2e)", () => {
       tags: ["Ok", "Good"]
     });
 
-    const { body } = await request(app.getHttpServer())
-      .get("/article")
-      .expect(200);
+    const { body } = await request(server).get("/article").expect(200);
 
     expect(body.data).toHaveLength(1);
     expect(body.data[0].name).toEqual(article.name);
@@ -92,7 +93,7 @@ describe("ArticleController (e2e)", () => {
       tags: ["Ok", "Good"]
     });
 
-    const { body } = await request(app.getHttpServer())
+    const { body } = await request(server)
       .get(`/article/${article._id.toString()}`)
       .accept("application/json")
       .expect(200);
@@ -109,7 +110,7 @@ describe("ArticleController (e2e)", () => {
       tags: ["Ok", "Good"]
     });
 
-    await request(app.getHttpServer())
+    await request(server)
       .patch(`/article/like`)
       .set("Content-Type", "application/json")
       .send({
@@ -135,7 +136,7 @@ describe("ArticleController (e2e)", () => {
       tags: ["Ok", "Good"]
     });
 
-    await request(app.getHttpServer())
+    await request(server)
       .patch(`/article/dislike`)
       .set("Content-Type", "application/json")
       .send({
@@ -170,7 +171,7 @@ describe("ArticleController (e2e)", () => {
     });
 
     // Part: Like an Article
-    await request(app.getHttpServer())
+    await request(server)
       .patch(`/article/like`)
       .set("Content-Type", "application/json")
       .send({
@@ -187,7 +188,7 @@ describe("ArticleController (e2e)", () => {
     expect(likedArticle.dislikes).toEqual(0);
 
     // Part: Dislike an Article by the Same User
-    await request(app.getHttpServer())
+    await request(server)
       .patch(`/article/dislike`)
       .set("Content-Type", "application/json")
       .send({
