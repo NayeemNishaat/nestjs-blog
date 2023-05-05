@@ -2,7 +2,7 @@ import { UserController } from "./user.controller";
 import { UserService } from "./user.service";
 import { getModelToken } from "@nestjs/mongoose";
 import { Test } from "@nestjs/testing";
-import { User } from "../../models/user.entity";
+import { User, UserDocument } from "../../models/user.entity";
 import mongoose from "mongoose";
 
 describe("UserController", () => {
@@ -27,7 +27,11 @@ describe("UserController", () => {
 
   describe("createUser", () => {
     it("should return the newly created user", async () => {
-      const user = new User();
+      const user = {
+        email: "name@domain.com",
+        firstName: "abc",
+        lastName: "xyz"
+      } as UserDocument;
 
       jest.spyOn(userService, "createUser").mockResolvedValue(user);
 
@@ -38,8 +42,11 @@ describe("UserController", () => {
   describe("getUserById", () => {
     it("should return a user by it's id", async () => {
       const id = new mongoose.Types.ObjectId() as unknown as string;
-      const user = new User();
-      user["_id"] = id;
+      const user = {
+        email: "name@domain.com",
+        firstName: "abc",
+        lastName: "xyz"
+      } as UserDocument;
 
       const spy = jest
         .spyOn(userService, "getUserById")

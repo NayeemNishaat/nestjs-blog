@@ -12,10 +12,10 @@ Used Elastic Search v8.7.0
 ## Installation
 
 ```bash
-$ npm install
+$ npm ci
 ```
 
-## Running the app
+## Running The App
 
 ```bash
 # development
@@ -28,9 +28,18 @@ $ npm run start:dev
 $ npm run start:prod
 ```
 
+## Running With Docker
+
+```bash
+$ docker compose up
+```
+
 ## Test
 
 ```bash
 # unit tests
 $ npm run test
+
+# integration tests
+$ npm run test:e2e
 ```
