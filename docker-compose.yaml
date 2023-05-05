@@ -1,0 +1,41 @@
+version: "3.7"
+services:
+  mongodb:
+    image: mongo
+    ports:
+      - 27017:27017
+    volumes:
+      - db:/data/mongodb
+
+  elsaticsearch:
+    image: elasticsearch:8.7.0
+    ports:
+      - 9200:9200
+    volumes:
+      - elsaticsearch:/data/elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+
+  rabbitmq:
+    image: rabbitmq
+    ports:
+      - 5672:5672
+    volumes:
+      - rabbitmq:/data/rabbitmq
+
+  app:
+    build: .
+    ports:
+      - ${PORT}:${PORT}
+    env_file:
+      - .env.docker
+    depends_on:
+      - rabbitmq
+      - mongodb
+      - elsaticsearch
+
+volumes:
+  db:
+  rabbitmq:
+  elsaticsearch:
