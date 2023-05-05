@@ -41,10 +41,9 @@ export class ArticleService {
     );
 
     const ids = results.map((result) => result._source.id);
-    if (!ids.length) {
-      return [];
-    }
-    return this.articleModel
+    if (!ids.length) return [];
+    console.log(await this.articleModel.find(), ids);
+    return await this.articleModel
       .find({
         _id: { $in: ids }
       })

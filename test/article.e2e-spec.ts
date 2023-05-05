@@ -3,11 +3,13 @@ import { HttpServer, INestApplication } from "@nestjs/common";
 import request from "supertest";
 import { ArticleModule } from "../src/modules/article/article.module";
 import { UserModule } from "../src/modules/user/user.module";
+import { SearchModule } from "../src/modules/search/search.module";
 import { MongooseModule } from "@nestjs/mongoose";
 import { ThrottlerModule } from "@nestjs/throttler";
 import { ArticleService } from "../src/modules/article/article.service";
 import { UserService } from "../src/modules/user/user.service";
 import { ConfigModule } from "@nestjs/config";
+import { MicroserviceOptions, Transport } from "@nestjs/microservices";
 
 describe("ArticleController (e2e)", () => {
   let app: INestApplication;
@@ -32,12 +34,24 @@ describe("ArticleController (e2e)", () => {
           })
         }),
         ArticleModule,
-        UserModule
+        UserModule,
+        SearchModule
       ]
     }).compile();
 
     app = moduleRef.createNestApplication();
     await app.init();
+
+    app.connectMicroservice<MicroserviceOptions>({
+      transport: Transport.RMQ,
+      options: {
+        urls: [process.env.RABBITMQ_URI],
+        queue: process.env.RABBITMQ_QUEUE,
+        noAck: false,
+        queueOptions: { durable: false }
+      }
+    });
+    await app.startAllMicroservices();
     server = app.getHttpServer();
 
     articleService = moduleRef.get<ArticleService>(ArticleService);
@@ -69,7 +83,7 @@ describe("ArticleController (e2e)", () => {
       .expect(201);
   });
 
-  it("/user (GET)", async () => {
+  it("/article (GET)", async () => {
     const article = await articleService.createArticle({
       name: "My Article",
       body: "This is my article",
@@ -82,6 +96,33 @@ describe("ArticleController (e2e)", () => {
 
     expect(body.data).toHaveLength(1);
     expect(body.data[0].name).toEqual(article.name);
+  });
+
+  it("searches articles", async () => {
+    await articleService.createArticle({
+      name: "My Article",
+      body: "This is my article",
+      author: "6439383e06b3b43356b39e4f",
+      categories: ["tech", "science"],
+      tags: ["Ok", "Good"]
+    });
+
+    await articleService.createArticle({
+      name: "My Article",
+      body: "This is my article",
+      author: "6439383e06b3b43356b39e4f",
+      categories: ["math", "history"],
+      tags: ["fine", "awesome"]
+    });
+
+    const { body } = await request(server)
+      .get("/article")
+      .set("Accept", "application/json")
+      .query({ search: "science" })
+      .expect(200);
+    console.log(body);
+    // expect(body.data[0].categories).toContain("science");
+    // expect(body.data[0].name).toEqual(article.name);
   });
 
   it("/article/:id (GET)", async () => {

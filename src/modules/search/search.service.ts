@@ -9,7 +9,7 @@ interface iCreateArticleDto extends CreateArticleDto {
 
 @Injectable()
 export class SearchService {
-  idx = "articles";
+  idx = process.env.ELASTIC_INDEX || "article";
 
   constructor(private readonly elasticsearchService: ElasticsearchService) {}
 
@@ -61,6 +61,15 @@ export class SearchService {
   async search(text: string, context: RmqContext) {
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
+
+    const indexExist = await this.elasticsearchService.indices.exists({
+      index: this.idx
+    });
+
+    if (!indexExist) {
+      channel.ack(originalMsg);
+      return [];
+    }
 
     const { hits } = await this.elasticsearchService.search({
       index: this.idx,

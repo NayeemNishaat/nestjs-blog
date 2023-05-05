@@ -56,7 +56,7 @@ export class ArticleController {
     summary: "Get an Article by id"
   })
   async getArticleById(@Param("id") id: string) {
-    this.logger.info(`[GET - /user/:id] => ${JSON.stringify({ id })}`);
+    this.logger.info(`[GET - /article/:id] => ${JSON.stringify({ id })}`);
 
     return await this.articleService.getArticleById(id);
   }
@@ -78,7 +78,7 @@ export class ArticleController {
     @Query("limit", new DefaultValuePipe(10)) limit?: number,
     @Query("search") search?: string
   ) {
-    this.logger.info(`[GET - /user] => ${JSON.stringify(null)}`);
+    this.logger.info(`[GET - /article] => ${JSON.stringify(null)}`);
 
     if (page < 1) throw new HttpException("Page must be greater than 0", 400);
 
@@ -97,7 +97,7 @@ export class ArticleController {
   })
   async likeArticle(@Body() likeDislikeArticleDto: LikeDislikeArticleDto) {
     this.logger.info(
-      `[Patch - /user/:id] =>\n\n${JSON.stringify(
+      `[Patch - /article/like] =>\n\n${JSON.stringify(
         { likeDislikeArticleDto },
         null,
         2
@@ -117,7 +117,7 @@ export class ArticleController {
   })
   async dislikeArticle(@Body() likeDislikeArticleDto: LikeDislikeArticleDto) {
     this.logger.info(
-      `[Patch - /user/:id] =>\n\n${JSON.stringify(
+      `[Patch - /article/dislike] =>\n\n${JSON.stringify(
         { likeDislikeArticleDto },
         null,
         2

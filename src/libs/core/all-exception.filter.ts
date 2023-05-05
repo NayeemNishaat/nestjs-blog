@@ -58,8 +58,7 @@ export class AllExceptionFilter implements ExceptionFilter {
         exception.message
       }      
 
-      ${exception.stack}
-      }`
+${JSON.stringify(exception, null, 2)}`
     );
 
     response.status(status).json(errResponse);
