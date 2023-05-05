@@ -34,8 +34,10 @@ $ npm run start:prod
 $ docker compose up
 ```
 
-### Docker Hub -> docker pull nayeemnishaat/nestjs-blog:latest
-
+## Docker Hub
+```bash
+docker pull nayeemnishaat/nestjs-blog:latest
+```
 ## Test
 
 ```bash
